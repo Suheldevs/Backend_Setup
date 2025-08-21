@@ -8,7 +8,7 @@ class ApiError extends Error  {
         super(message)
         this.statusCode = statusCode
         this.data = null
-        this.message = message
+        this.message =capitalizeWords(message)
         this.success = false
         this.errors = errors
 
@@ -20,4 +20,8 @@ class ApiError extends Error  {
     }
 }
 
+const capitalizeWords = (str) => {
+  if (!str) return str;
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
+};
 export {ApiError}

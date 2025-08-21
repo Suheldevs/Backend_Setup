@@ -1,23 +1,34 @@
-// class ApiResponse {
-//     constructor(statusCode, data, message="Success"){
-//         this.statusCode = statusCode
-//         this.data = data
-//         this.message = message
-//         this.success = statusCode < 400
-//         if (meta) this.meta = meta;
-//     }
-// }
 
-
-const ApiResponse = (statusCode, data = null, message = "Success", meta = null) => {
-    return {
-        statusCode,
-        success: statusCode < 400,
-        message,
-        data,
-        ...(meta && { meta }),
-        timestamp: new Date().toISOString(),
-    };
+const capitalizeWords = (str) => {
+  if (!str) return str;
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-export {ApiResponse}
+
+
+
+
+const ApiResponse = (statusCode, message = "Success", data = null, meta = null) => {
+  return {
+    statusCode,
+    success: statusCode < 400,
+    message: capitalizeWords(message),
+    data,
+    ...(meta && { meta }),
+    timestamp: new Date(),
+  };
+};
+
+
+const responseMiddleware = (req, res, next) => {
+  res.api = (statusCode, message = "Success", data = null, meta = null) => {
+    if (typeof message === "object" && message !== null && !Array.isArray(message)) {
+      data = message;
+      message = "Success";
+    }
+    return res.status(statusCode).json(ApiResponse(statusCode, message, data, meta));
+  };
+  next();
+};
+
+export { ApiResponse, responseMiddleware };
